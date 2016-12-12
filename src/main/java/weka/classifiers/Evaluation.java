@@ -407,10 +407,10 @@ public class Evaluation implements Serializable, Summarizable, RevisionHandler {
    * @throws Exception if a classifier could not be generated successfully or
    *           the class is not defined
    */
-  public void crossValidateModel(String classifierString, Instances data,
-                                 weka.classifiers.evaluation.Evaluation.FoldSelector selector,
-                                 String[] options, Random random) throws Exception {
-    m_delegate.crossValidateModel(AbstractClassifier.forName(classifierString, options), data, selector, random, (Object[]) options);
+  public void crossValidateModel(Classifier classifier, Instances data,
+                                 String[] options, Random random,
+                                 weka.classifiers.evaluation.Evaluation.FoldSelector selector) throws Exception {
+    m_delegate.crossValidateModel(classifier, data, selector, random, (Object[]) options);
   }
 
   /**
