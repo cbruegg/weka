@@ -825,10 +825,33 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
       }
       testSetByFold.get(fold).add(instance);
     }
+    m_NumFolds = testSetByFold.size();
 
-    for (List<Instance> foldTestSet : testSetByFold.values()) {
+    // In theory, we could just set train := data \ testSet, but Instance#hashCode is not implemented..
+    // Thus, we need to perform a second pass over the data, since we only now know the number of folds.
+    Map<Integer, List<Instance>> trainSetByFold = new HashMap<>();
+    for (Instance instance : data) {
+      int fold = selector.foldToLeaveOut(instance);
+      for (int i = 0; i < m_NumFolds; i++) {
+        if (i == fold) {
+          continue;
+        }
+        if (!trainSetByFold.containsKey(i)) {
+            trainSetByFold.put(i, new ArrayList<Instance>());
+        }
+        trainSetByFold.get(i).add(instance);
+      }
+    }
+
+    for (int i = 0; i < m_NumFolds; i++) {
+        List<Instance> foldTrainSet = trainSetByFold.get(i);
         Instances train = new Instances(data);
-        train.removeAll(foldTestSet);
+        train.clear();
+        for (Instance instance : foldTrainSet) {
+            train.add(instance); // We can't use addAll since add does something custom
+        }
+
+        List<Instance> foldTestSet = testSetByFold.get(i);
         Instances test = new Instances(data);
         test.clear();
         for (Instance instance : foldTestSet) {
@@ -840,8 +863,6 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
         copiedClassifier.buildClassifier(train);
         evaluateModel(copiedClassifier, test, forPredictionsPrinting);
     }
-
-    m_NumFolds = testSetByFold.size();
 
     if (classificationOutput != null) {
       classificationOutput.printFooter();
