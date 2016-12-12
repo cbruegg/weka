@@ -395,6 +395,25 @@ public class Evaluation implements Serializable, Summarizable, RevisionHandler {
   }
 
   /**
+   * Performs a cross-validation for a
+   * classifier on a set of instances.
+   *
+   * @param classifierString a string naming the class of the classifier
+   * @param data the data on which the cross-validation is to be performed
+   * @param numFolds the number of folds for the cross-validation
+   * @param options the options to the classifier. Any options
+   * @param random the random number generator for randomizing the data accepted
+   *          by the classifier will be removed from this array.
+   * @throws Exception if a classifier could not be generated successfully or
+   *           the class is not defined
+   */
+  public void crossValidateModel(String classifierString, Instances data,
+                                 weka.classifiers.evaluation.Evaluation.FoldSelector selector,
+                                 String[] options, Random random) throws Exception {
+    m_delegate.crossValidateModel(AbstractClassifier.forName(classifierString, options), data, selector, random, (Object[]) options);
+  }
+
+  /**
    * Evaluates a classifier with the options given in an array of strings.
    * <p/>
    * 
