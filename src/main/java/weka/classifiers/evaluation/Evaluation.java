@@ -831,7 +831,9 @@ public class Evaluation implements Summarizable, RevisionHandler, Serializable {
         train.removeAll(foldTestSet);
         Instances test = new Instances(data);
         test.clear();
-        test.addAll(foldTestSet);
+        for (Instance instance : foldTestSet) {
+          test.add(instance); // We can't use addAll since add does something custom
+        }
 
         setPriors(train);
         Classifier copiedClassifier = AbstractClassifier.makeCopy(classifier);
